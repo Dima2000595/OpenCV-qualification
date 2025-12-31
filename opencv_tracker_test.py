@@ -32,7 +32,7 @@ else:
 		"mil": cv2.TrackerMIL_create,
 		"tld": cv2.legacy.TrackerTLD_create,
 		"medianflow": cv2.legacy.TrackerMedianFlow_create,
-		"mosse": cv2.legacy.TrackerMOSSE_create
+		"mosse": cv2.legacy.TrackerMOSSE_createas
 	}
 	# grab the appropriate object tracker using our dictionary of
 	# OpenCV object tracker objects
@@ -91,7 +91,7 @@ while True:
 			text = "{}: {}".format(k, v)
 			cv2.putText(frame, text, (10, H - ((i * 20) + 20)),
 				cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
-				# show the output frame
+				# show the output frameffv
 	cv2.imshow("Frame", frame)
 	key = cv2.waitKey(1) & 0xFF
 	# if the 's' key is selected, we are going to "select" a bounding
