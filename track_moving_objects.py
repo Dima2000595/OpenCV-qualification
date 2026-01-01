@@ -5,11 +5,16 @@ import time
 import imutils
 from imutils.video import FPS
 from imutils.video import VideoStream
-import countours_merger
-from countours_merger import agglomerative_cluster
 
-color_green = (0, 255, 0)
-box_contour_thickness = 3
+color_green = (0, 255, 0, 255)
+box_contour_thickness = 2
+max_objects = 5
+current_frame = 0
+
+def point_near_box(point, box, proximity = 100):
+	point_x, point_y = point
+	x, y, h, w = box
+	return point_x > x - proximity and point_x < x + w + proximity and point_y > y - proximity and point_y < y + h + proximity  
 
 ap = argparse.ArgumentParser()
 ap.add_argument("-v", "--video", type=str,
@@ -19,8 +24,7 @@ args = vars(ap.parse_args())
 
 # Assume stable camera, so background substractor will provide reliable result
 object_detector = cv2.createBackgroundSubtractorMOG2(history=100, varThreshold=40)
-# More reliable tracking algo for purposes of this task
-tracker = cv2.TrackerCSRT_create()
+multiTracker = cv2.legacy.MultiTracker_create()
 
 if not args.get("video", False):
 	# open first webcam by default
@@ -44,23 +48,38 @@ while True:
 	frame = imutils.resize(frame, width=500)
 	(H, W) = frame.shape[:2]
 
-	mask = object_detector.apply(frame)
-	_, mask = cv2.threshold(mask, 254, 255, cv2.THRESH_BINARY)
-	contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-	# contours = agglomerative_cluster(contours) # Need adaptation for newer versios of CV2
+	success, boxes = multiTracker.update(frame)
+	for box in boxes:
+		x, y, w, h = box
+		breakpoint()
+		cv2.rectangle(frame, (int(x), int(y)), (int(x) + int(w), int(y) + int(h)), color_green, box_contour_thickness)
 
-	detections = []
+	# Limit detection procedure to every 10th frame
+	if current_frame % 10 == 0:
+		mask = object_detector.apply(frame)
+		_, mask = cv2.threshold(mask, 254, 255, cv2.THRESH_BINARY)
+		contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
-	for contour in contours:
-        # Calculate area and skip small elements (most likely noise)
-		area = cv2.contourArea(contour)
-		if area > 100:
-			# cv2.drawContours(frame, [contour], -1, (0, 255, 0), 2)
-			x, y, w, h = cv2.boundingRect(contour)
-			# cv2.putText(frame, str(id), (x, y - 20), cv2.FONT_HERSHEY_SIMPLEX, color_green, int(box_contour_thickness))
-			cv2.rectangle(frame, (x, y), (x + w, y + h), color_green, box_contour_thickness)
-	
-				
+		for contour in contours:
+			# breakpoint()
+			# Calculate area and skip small elements (most likely noise)
+			area = cv2.contourArea(contour)
+			if area > 200:
+				x, y, w, h = cv2.boundingRect(contour)
+				# cv2.putText(frame, str(id), (x, y - 20), cv2.FONT_HERSHEY_SIMPLEX, color_green, int(box_contour_thickness))
+				# cv2.rectangle(frame, (x, y), (x + w, y + h), color_green, box_contour_thickness)
+				bb = (x, y, w, h)
+				# for existing_tracker in multiTracker.trackers:
+				# breakpoint()
+				for box in boxes:
+					# breakpoint()
+					if point_near_box((x, y), box):
+						break
+				else:
+					multiTracker.add(cv2.legacy.TrackerKCF_create(), frame, bb)
+		
+		frame += 1
+
 	cv2.imshow("Frame", frame)
 	# cv2.imshow("Mask", mask)
 

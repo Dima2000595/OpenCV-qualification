@@ -32,7 +32,7 @@ else:
 		"mil": cv2.TrackerMIL_create,
 		"tld": cv2.legacy.TrackerTLD_create,
 		"medianflow": cv2.legacy.TrackerMedianFlow_create,
-		"mosse": cv2.legacy.TrackerMOSSE_createas
+		"mosse": cv2.legacy.TrackerMOSSE_create
 	}
 	# grab the appropriate object tracker using our dictionary of
 	# OpenCV object tracker objects
