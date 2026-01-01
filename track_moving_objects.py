@@ -51,7 +51,6 @@ while True:
 	success, boxes = multiTracker.update(frame)
 	for box in boxes:
 		x, y, w, h = box
-		breakpoint()
 		cv2.rectangle(frame, (int(x), int(y)), (int(x) + int(w), int(y) + int(h)), color_green, box_contour_thickness)
 
 	# Limit detection procedure to every 10th frame
@@ -61,21 +60,16 @@ while True:
 		contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
 		for contour in contours:
-			# breakpoint()
 			# Calculate area and skip small elements (most likely noise)
 			area = cv2.contourArea(contour)
 			if area > 200:
 				x, y, w, h = cv2.boundingRect(contour)
-				# cv2.putText(frame, str(id), (x, y - 20), cv2.FONT_HERSHEY_SIMPLEX, color_green, int(box_contour_thickness))
-				# cv2.rectangle(frame, (x, y), (x + w, y + h), color_green, box_contour_thickness)
 				bb = (x, y, w, h)
-				# for existing_tracker in multiTracker.trackers:
-				# breakpoint()
 				for box in boxes:
-					# breakpoint()
 					if point_near_box((x, y), box):
 						break
 				else:
+					# Add new tracker only when object detected far enough from currently tracked
 					multiTracker.add(cv2.legacy.TrackerKCF_create(), frame, bb)
 		
 		frame += 1

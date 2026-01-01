@@ -9,4 +9,4 @@ Demo of the OpenCV capability of detecting and tracking moving objects without u
 
 `./bin/python3 ./track_moving_objects.py` (will try to access built in webcam)
 
-usage of `-v` or `--video` argument supported to process pre-recorded video file
+usage of `-v <path>` or `--video <path>` argument supported to process pre-recorded video file
