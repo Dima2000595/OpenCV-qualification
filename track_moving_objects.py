@@ -3,7 +3,6 @@ import numpy as np
 import argparse
 import time
 import imutils
-from imutils.video import FPS
 from imutils.video import VideoStream
 
 color_green = (0, 255, 0, 255)
@@ -72,7 +71,7 @@ while True:
 					# Add new tracker only when object detected far enough from currently tracked
 					multiTracker.add(cv2.legacy.TrackerKCF_create(), frame, bb)
 		
-		frame += 1
+	current_frame += 1
 
 	cv2.imshow("Frame", frame)
 	# cv2.imshow("Mask", mask)
